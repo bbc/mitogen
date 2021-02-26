@@ -749,24 +749,6 @@ class Connection(ansible.plugins.connection.ConnectionBase):
         :returns:
             Tuple `(stack, seen_names)`.
         """
-        if spec.inventory_name() in seen_names:
-            raise ansible.errors.AnsibleConnectionFailure(
-                self.via_cycle_msg % (
-                    spec.mitogen_via(),
-                    spec.inventory_name(),
-                    ' -> '.join(reversed(
-                        seen_names + (spec.inventory_name(),)
-                    )),
-                )
-            )
-
-        if spec.mitogen_via():
-            stack = self._stack_from_spec(
-                self._spec_from_via(spec.inventory_name(), spec.mitogen_via()),
-                stack=stack,
-                seen_names=seen_names + (spec.inventory_name(),),
-            )
-
         stack += (CONNECTION_METHOD[spec.transport()](spec),)
         if spec.become() and ((spec.become_user() != spec.remote_user()) or
                               C.BECOME_ALLOW_SAME_USER):
